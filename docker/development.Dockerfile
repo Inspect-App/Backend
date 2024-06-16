@@ -18,7 +18,10 @@ RUN npm install prisma @prisma/client
 # Copy remaining application files
 COPY . .
 
-# Expose the NestJS port specified in the environment variable
+# Set build-time argument for the NestJS port
+ARG NESTJS_PORT=3200
+
+# Expose the NestJS port
 EXPOSE $NESTJS_PORT
 
 # Run the development server and prisma migrate deploy
