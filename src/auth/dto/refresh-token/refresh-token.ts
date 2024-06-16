@@ -1,5 +1,12 @@
+import { IsNumber, IsString, IsNotEmpty } from 'class-validator';
+
 export class RefreshTokenDto {
-    userId: number;
-    refreshToken: string;
-  }
-  
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+
+  @IsString()
+  @IsNotEmpty()
+  refreshToken: string;
+}
