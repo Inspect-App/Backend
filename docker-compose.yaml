@@ -22,7 +22,6 @@ services:
   postgres:
     image: postgres:15-alpine
     restart: unless-stopped
-    user: ${POSTGRES_USER}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -33,15 +32,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data/
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready",
-          "-U",
-          "${POSTGRES_USER}",
-          "-d",
-          "${POSTGRES_DB}"
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,9 +46,9 @@ services:
     networks:
       - xoxonetwork
     expose:
-      - ${NESTJS_PORT}
+      - "${NESTJS_PORT}"
     ports:
-      - ${NESTJS_PORT}:${NESTJS_PORT}
+      - "${NESTJS_PORT}:${NESTJS_PORT}"
       - 5555:5555
     depends_on:
       - postgres

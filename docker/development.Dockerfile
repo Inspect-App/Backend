@@ -2,7 +2,10 @@
 FROM node:21.7.3-slim
 
 # Install pnpm and procps (for ps command)
-RUN apt-get update -y && apt-get install -y procps openssl
+RUN apt-get update -y && \
+    apt-get install -y procps openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -10,7 +13,7 @@ WORKDIR /usr/src/app
 # Copy package management files first and install dependencies
 COPY package.json package-lock.json* ./
 
-RUN npm install
+RUN npm ci
 
 # Install Prisma CLI
 RUN npm install prisma @prisma/client
