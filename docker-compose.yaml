@@ -3,7 +3,7 @@ version: '3.8'
 services:
   pgweb:
     image: sosedoff/pgweb
-    container_name: pgviewer
+    container_name: pgview
     restart: unless-stopped
     links:
       - postgres:postgres
