@@ -37,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
 
-  nestjs_v1:
+  nestjs:
     build:
       context: .
       dockerfile: ./docker/${NODE_ENV}.Dockerfile
@@ -48,25 +48,8 @@ services:
     expose:
       - "${NESTJS_PORT}"
     ports:
-      - "3201:3200"
-    depends_on:
-      - postgres
-    volumes:
-      - ./src:/usr/src/app/src
-      - ./prisma:/usr/src/app/prisma
-
-  nestjs_v2:
-    build:
-      context: .
-      dockerfile: ./docker/${NODE_ENV}.Dockerfile
-    env_file:
-      - .env
-    networks:
-      - xoxonetwork
-    expose:
-      - "${NESTJS_PORT}"
-    ports:
-      - "3202:3200"
+      - "${NESTJS_PORT}:${NESTJS_PORT}"
+      - 5555:5555
     depends_on:
       - postgres
     volumes:
