@@ -3,10 +3,11 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model user {
-    id        String   @id @default(cuid())
-    username  String
-    password  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model User {
+    id           Int      @id @default(autoincrement())
+    email        String   @unique
+    password     String
+    refreshToken String?
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 }
