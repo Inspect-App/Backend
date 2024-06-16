@@ -28,7 +28,7 @@ jobs:
             if [ ! -d /home/ubuntu/backend ]; then
               mkdir -p /home/ubuntu/backend
               cd /home/ubuntu/backend
-              git clone https://github.com/yourusername/yourrepository.git .
+              git clone https://github.com/JeanPaulBassil/XOXO-Event-Planner-Backend.git .
             else
               cd /home/ubuntu/backend
               git pull origin main
