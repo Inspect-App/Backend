@@ -1,1 +1,5 @@
-export class RefreshToken {}
+export class RefreshTokenDto {
+    userId: number;
+    refreshToken: string;
+  }
+  
