@@ -45,6 +45,17 @@ jobs:
             echo "POSTGRES_PORT=${POSTGRES_PORT}" >> .env
             echo "NODE_ENV=${NODE_ENV}" >> .env
             echo "NESTJS_PORT=${NESTJS_PORT}" >> .env
-            sudo docker-compose down
-            sudo docker-compose up --build -d
+
+            # Deploy the new version
+            sudo docker-compose up --build -d nestjs_v2 pgweb
+
+            # Check if the new version is running successfully (add appropriate health checks here)
+            sleep 30  # wait for the services to start
+
+            # If new version is running fine, switch the traffic (e.g., update the load balancer or reverse proxy config)
+            # Assuming you have a load balancer or reverse proxy like NGINX, you would update its configuration here
+
+            # Remove the old version
+            sudo docker-compose stop nestjs_v1
+            sudo docker-compose rm -f nestjs_v1
           EOF
