@@ -40,7 +40,7 @@ services:
   nestjs:
     build:
       context: .
-      dockerfile: ./docker/${NODE_ENV}.Dockerfile
+      dockerfile: Dockerfile
     env_file:
       - .env
     networks:
@@ -51,7 +51,8 @@ services:
       - "${NESTJS_PORT}:${NESTJS_PORT}"
       - 5555:5555
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./src:/usr/src/app/src
       - ./prisma:/usr/src/app/prisma

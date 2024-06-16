@@ -12,7 +12,6 @@ WORKDIR /usr/src/app
 
 # Copy package management files first and install dependencies
 COPY package.json package-lock.json* ./
-
 RUN npm ci
 
 # Install Prisma CLI
