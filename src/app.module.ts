@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma.service';
 import { CustomConfigService } from './config/config.service';
 import configuration from './config/configuration';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MailerService } from './mailer/mailer.service';
 
 @Module({
   imports: [
@@ -16,6 +18,17 @@ import configuration from './config/configuration';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, CustomConfigService],
+  providers: [AppService, PrismaService, CustomConfigService, MailerService],
 })
-export class AppModule {}
+export class AppModule {
+  configureSwagger(app: any) {
+    const options = new DocumentBuilder()
+      .setTitle('API Documentation')
+      .setDescription('API description')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup('api', app, document);
+  }
+}

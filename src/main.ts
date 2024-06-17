@@ -11,6 +11,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Inspect App API')
     .setDescription('This is the API documentation for the Inspect Mobile App.')
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
 

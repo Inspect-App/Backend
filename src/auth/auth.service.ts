@@ -129,8 +129,6 @@ export class AuthService {
       where: { email },
     })) as User;
 
-    Logger.log(JSON.stringify(user));
-    Logger.log(verificationCode);
     if (!user || user.verificationCode !== verificationCode) {
       throw new UnauthorizedException('Invalid verification code');
     }
