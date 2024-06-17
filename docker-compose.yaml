@@ -57,6 +57,21 @@ services:
       - ./src:/usr/src/app/src
       - ./prisma:/usr/src/app/prisma
 
+  maildev:
+    image: maildev/maildev
+    restart: unless-stopped
+    ports:
+      - 1080:1080
+      - ${MAIL_PORT}:${MAIL_PORT}
+    networks:
+      - xoxonetwork
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1080"]
+      interval: 30s
+      timeout: 30s
+      retries: 10
+
+
 volumes:
   postgres-data:
 
