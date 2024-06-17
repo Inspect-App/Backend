@@ -17,6 +17,8 @@ import { ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
 import { User } from 'interfaces/user.interface';
 import { UserResponseDto } from './dto/user/user.dto';
+import { RegisterDto } from './dto/register/register.dto';
+import { VerifyDto } from './dto/verify/verify.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -58,5 +60,23 @@ export class AuthController {
       throw new UnauthorizedException('Invalid or expired token');
     }
     return this.authService.getMe(user.id);
+  }
+
+  @Post('register')
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  async register(@Body() registerDto: RegisterDto) {
+    await this.authService.register(registerDto);
+    return { message: 'Verification code sent to email' };
+  }
+
+  @Post('verify')
+  @ApiBody({ type: VerifyDto })
+  @ApiResponse({ status: 200, description: 'User verified successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async verify(@Body() verifyDto: VerifyDto) {
+    await this.authService.verify(verifyDto);
+    return { message: 'User verified successfully' };
   }
 }

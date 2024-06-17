@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -11,13 +12,14 @@ import { JwtPayload } from 'interfaces/jwt.payload';
 import { UserResponseDto } from './dto/user/user.dto';
 import { RegisterDto } from './dto/register/register.dto';
 import { VerifyDto } from './dto/verify/verify.dto';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
-  mailerService: any;
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private mailerService: MailerService,
   ) {}
 
   async validateUser(
@@ -35,7 +37,7 @@ export class AuthService {
   async login(
     user: Omit<User, 'password'>,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = { username: user.email, sub: user.id };
+    const payload: JwtPayload = { email: user.email, id: user.id };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
@@ -55,6 +57,8 @@ export class AuthService {
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    Logger.log(JSON.stringify(user));
 
     if (!user || user.refreshToken !== refreshToken) {
       throw new Error('Invalid refresh token');
@@ -100,18 +104,23 @@ export class AuthService {
       100000 + Math.random() * 900000,
     ).toString();
 
-    await this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        verificationCode,
-        isVerified: false,
-      },
-    });
+    try {
+      await this.prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          firstName,
+          lastName,
+          verificationCode,
+          isVerified: false,
+        },
+      });
 
-    this.mailerService.sendVerificationEmail(email, verificationCode);
+      this.mailerService.sendVerificationEmail(email, verificationCode);
+    } catch (error) {
+      await this.prisma.user.delete({ where: { email } });
+      throw new BadRequestException('Failed to register user');
+    }
   }
 
   async verify(verifyDto: VerifyDto): Promise<void> {
@@ -120,6 +129,8 @@ export class AuthService {
       where: { email },
     })) as User;
 
+    Logger.log(JSON.stringify(user));
+    Logger.log(verificationCode);
     if (!user || user.verificationCode !== verificationCode) {
       throw new UnauthorizedException('Invalid verification code');
     }
