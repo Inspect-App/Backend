@@ -1,13 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'interfaces/user.interface';
 import { JwtPayload } from 'interfaces/jwt.payload';
 import { UserResponseDto } from './dto/user/user.dto';
+import { RegisterDto } from './dto/register/register.dto';
+import { VerifyDto } from './dto/verify/verify.dto';
 
 @Injectable()
 export class AuthService {
+  mailerService: any;
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
@@ -77,5 +84,49 @@ export class AuthService {
     }
     const { password, createdAt, updatedAt, ...result } = user;
     return result;
+  }
+
+  async register(registerDto: RegisterDto): Promise<void> {
+    const { email, password, firstName, lastName } = registerDto;
+    const existingUser = (await this.prisma.user.findUnique({
+      where: { email },
+    })) as User;
+    if (existingUser) {
+      throw new BadRequestException('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+
+    await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        verificationCode,
+        isVerified: false,
+      },
+    });
+
+    this.mailerService.sendVerificationEmail(email, verificationCode);
+  }
+
+  async verify(verifyDto: VerifyDto): Promise<void> {
+    const { email, verificationCode } = verifyDto;
+    const user = (await this.prisma.user.findUnique({
+      where: { email },
+    })) as User;
+
+    if (!user || user.verificationCode !== verificationCode) {
+      throw new UnauthorizedException('Invalid verification code');
+    }
+
+    await this.prisma.user.update({
+      where: { email },
+      data: { verificationCode: null, isVerified: true },
+    });
   }
 }
