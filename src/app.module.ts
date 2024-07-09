@@ -8,6 +8,8 @@ import { CustomConfigService } from './config/config.service';
 import configuration from './config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MailerService } from './mailer/mailer.service';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -18,7 +20,16 @@ import { MailerService } from './mailer/mailer.service';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, CustomConfigService, MailerService],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+    AppService,
+    PrismaService,
+    CustomConfigService,
+    MailerService,
+  ],
 })
 export class AppModule {
   configureSwagger(app: any) {
