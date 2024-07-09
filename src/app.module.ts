@@ -9,7 +9,7 @@ import configuration from './config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MailerService } from './mailer/mailer.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 @Module({
   imports: [
