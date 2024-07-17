@@ -8,6 +8,8 @@ import { CustomConfigService } from './config/config.service';
 import configuration from './config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MailerService } from './mailer/mailer.service';
+import { MinioClientModule } from './minio/minio-client.module';
+import { FileUploadModule } from './files/file-upload.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { MailerService } from './mailer/mailer.service';
       isGlobal: true,
     }),
     AuthModule,
+    MinioClientModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, CustomConfigService, MailerService],
