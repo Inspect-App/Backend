@@ -1,8 +1,12 @@
 # Use a specific Node.js version
 FROM node:21.7.3-slim
 
-# Install pnpm and procps (for ps command)
-RUN npm install -g pnpm && apt-get update -y && apt-get install -y procps openssl
+# Install pnpm, procps, openssl, and ffmpeg
+RUN npm install -g pnpm \
+    && apt-get clean \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends procps openssl ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -20,5 +24,8 @@ COPY . .
 # Expose the NestJS port specified in the environment variable
 EXPOSE $NESTJS_PORT
 
+# Verify ffmpeg and ffprobe installation
+RUN ffmpeg -version && ffprobe -version
+
 # Run the development server and prisma migrate deploy
-CMD ["sh", "-c", "pnpm prisma generate && pnpm run start:dev && pnpm run docker:prisma:reset && pnpm run prisma migrate deploy"]
+CMD ["sh", "-c", "pnpm prisma generate && pnpm run start:dev && pnpm run prisma migrate deploy"]
