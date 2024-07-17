@@ -10,6 +10,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MailerService } from './mailer/mailer.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { MinioClientModule } from './minio/minio-client.module';
+import { FileUploadModule } from './files/file-upload.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
       isGlobal: true,
     }),
     AuthModule,
+    MinioClientModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,41 +1,51 @@
 version: '3.8'
 
 services:
-  pgweb:
-    image: sosedoff/pgweb
-    container_name: pgview
+  minio:
+    image: minio/minio
     restart: unless-stopped
-    links:
-      - postgres:postgres
-    depends_on:
-      - postgres
-    networks:
-      - xoxonetwork
     ports:
-      - 8081:8081
+      - ${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}
+      - ${MINIO_API_PORT}:${MINIO_API_PORT}
+    environment:
+      MINIO_ROOT_USER: ${STACKHERO_MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STACKHERO_MINIO_SECRET_KEY}
+    command: minio server --console-address ":${MINIO_CONSOLE_PORT}" /data
+    volumes:
+      - miniodata:/data
+    networks:
+      - inspectnetwork
     healthcheck:
-      test: nc -vz 127.0.0.1 8081
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ['CMD', 'curl', '-f', 'http://localhost:${MINIO_API_PORT}']
+      interval: 30s
+      timeout: 30s
+      retries: 10
 
-  postgres:
-    image: postgres:15-alpine
+  db:
+    container_name: ins-pg
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=${POSTGRES_PORT}
     networks:
-      - xoxonetwork
+      - inspectnetwork
     volumes:
-      - postgres-data:/var/lib/postgresql/data/
+      - pgdata:/var/lib/postgresql/data/
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - inspectnetwork
 
   nestjs:
     build:
@@ -44,14 +54,14 @@ services:
     env_file:
       - .env
     networks:
-      - xoxonetwork
+      - inspectnetwork
     expose:
       - '${NESTJS_PORT}'
     ports:
       - '${NESTJS_PORT}:${NESTJS_PORT}'
       - 5555:5555
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
     volumes:
       - ./src:/usr/src/app/src
@@ -64,16 +74,16 @@ services:
       - 1080:1080
       - ${MAIL_PORT}:${MAIL_PORT}
     networks:
-      - xoxonetwork
+      - inspectnetwork
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1080"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:1080']
       interval: 30s
       timeout: 30s
       retries: 10
 
-
 volumes:
-  postgres-data:
+  pgdata:
+  miniodata:
 
 networks:
-  xoxonetwork:
+  inspectnetwork:

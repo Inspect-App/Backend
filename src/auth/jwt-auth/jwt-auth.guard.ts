@@ -4,9 +4,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  Logger,
 } from '@nestjs/common';
-import { AuthService } from '../auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'interfaces/jwt.payload';
 import { PrismaService } from 'src/prisma.service';
@@ -22,7 +20,12 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Token not found');
+      throw new UnauthorizedException({
+        response: { status: 401, errors: { token: 'Token not found' } },
+        status: 401,
+        message: 'Token not found',
+        name: 'UnauthorizedException',
+      });
     }
 
     try {
@@ -31,12 +34,22 @@ export class JwtAuthGuard implements CanActivate {
         where: { id: payload.id },
       });
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException({
+          response: { status: 401, errors: { user: 'User not found' } },
+          status: 401,
+          message: 'User not found',
+          name: 'UnauthorizedException',
+        });
       }
       request.user = user;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException({
+        response: { status: 401, errors: { token: 'Invalid token' } },
+        status: 401,
+        message: 'Invalid token',
+        name: 'UnauthorizedException',
+      });
     }
   }
 
