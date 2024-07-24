@@ -1,38 +1,31 @@
-# Stage 1: Build the application
-FROM node:21.7.3-slim as build
-
-# Install pnpm and required dependencies
-RUN npm install -g pnpm && apt-get update -y && apt-get install -y procps openssl
-
-WORKDIR /usr/src/app
-
-COPY package.json pnpm-lock.yaml* ./
-
-RUN pnpm install --no-frozen-lockfile
-
-COPY . .
-
-RUN pnpm prisma generate
-RUN pnpm run build
-
-
-# Stage 2: Production image
+# Use a specific Node.js version
 FROM node:21.7.3-slim
 
-RUN npm install -g pnpm && apt-get update -y && apt-get install -y openssl
+# Install pnpm and procps (for ps command)
+RUN npm install -g pnpm && apt-get update -y && apt-get install -y procps openssl
 
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy the build output and the necessary files
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/package.json .
-COPY --from=build /usr/src/app/pnpm-lock.yaml* ./
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/prisma ./prisma
-COPY --from=build /usr/src/app/prisma/seeds/cities/cities.json ./prisma/seeds/cities/cities.json
+# Copy package management files first and install only production dependencies
+COPY package.json pnpm-lock.yaml* ./
 
-# Expose the application port
-EXPOSE 3200
+RUN pnpm install --production
 
-# Start the application
-CMD ["node", "dist/src/main"]
+# Install Prisma CLI as a dev dependency separately
+RUN pnpm add prisma --save-dev
+
+# Copy remaining application files
+COPY . .
+
+# Generate Prisma client
+RUN pnpm prisma generate
+
+# Build the NestJS application
+RUN pnpm run build
+
+# Expose the NestJS port specified in the environment variable
+EXPOSE $NESTJS_PORT
+
+# Command to run the application in production mode
+CMD ["sh", "-c", "pnpm run start:prod && pnpm run prisma:migrate:prod && pnpm run prisma:push"]
