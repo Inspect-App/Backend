@@ -37,9 +37,18 @@ export class AuthService {
   async login(
     user: Omit<User, 'password'>,
   ): Promise<{ accessToken: string; refreshToken: string }> {
+
+    return this.getTokensAndUserFromUser(user);
+  }
+
+  async getTokensAndUserFromUser(user: Omit<User, 'password'>): Promise<
+    { accessToken: string; refreshToken: string, user: Omit<User, 'password'> }
+  >
+   {
     const payload: JwtPayload = { email: user.email, id: user.id };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    // make sure password is not included in the response
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -49,6 +58,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      user: user,
     };
   }
 
@@ -123,7 +133,9 @@ export class AuthService {
     }
   }
 
-  async verify(verifyDto: VerifyDto): Promise<void> {
+  async verify(verifyDto: VerifyDto): Promise<
+    { accessToken: string; refreshToken: string }
+  > {
     const { email, verificationCode } = verifyDto;
     const user = (await this.prisma.user.findUnique({
       where: { email },
@@ -137,5 +149,7 @@ export class AuthService {
       where: { email },
       data: { verificationCode: null, isVerified: true },
     });
+    const { password, ...result } = user;
+    return this.getTokensAndUserFromUser(result);
   }
 }

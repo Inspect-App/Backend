@@ -76,7 +76,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'User verified successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async verify(@Body() verifyDto: VerifyDto) {
-    await this.authService.verify(verifyDto);
-    return { message: 'User verified successfully' };
+    return await this.authService.verify(verifyDto);
+  
   }
 }
