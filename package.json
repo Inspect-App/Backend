@@ -24,6 +24,7 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
+    "prisma:migrate:prod": "prisma migrate deploy",
     "docker:prisma:migrate": "docker-compose exec nestjs pnpm run prisma:migrate && pnpm run prisma:gen",
     "docker:prisma:push": "docker-compose exec nestjs pnpm run prisma:push && pnpm run prisma:gen",
     "docker:prisma:studio": "docker-compose exec nestjs pnpm prisma:studio",
