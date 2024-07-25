@@ -18,8 +18,11 @@ RUN pnpm add prisma --save-dev
 # Copy remaining application files
 COPY . .
 
+# Ensure the prisma directory and its contents are copied
+COPY prisma/ ./prisma/
+
 # Generate Prisma client
-RUN pnpm prisma generate
+RUN pnpm prisma generate --schema=./prisma/schema.prisma
 
 # Build the NestJS application
 RUN pnpm run build
@@ -28,4 +31,4 @@ RUN pnpm run build
 EXPOSE $NESTJS_PORT
 
 # Command to run the application in production mode
-CMD ["sh", "-c", "pnpm run prisma:migrate:prod && pnpm run prisma:push && pnpm run start:prod"]
+CMD ["sh", "-c", "pnpm run prisma:migrate:prod --schema=./prisma/schema.prisma && pnpm run prisma:push --schema=./prisma/schema.prisma && pnpm run start:prod"]
