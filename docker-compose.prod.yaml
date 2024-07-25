@@ -60,8 +60,10 @@ services:
       - '${NESTJS_PORT}:${NESTJS_PORT}'
       - 5555:5555
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - minio
+      - maildev      
+      
     volumes:
       - ./src:/usr/src/app/src
       - ./prisma:/usr/src/app/prisma
