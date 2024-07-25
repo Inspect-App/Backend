@@ -90,5 +90,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             sudo docker compose pull
-            sudo docker compose up -d
+            sudo docker compose --verbose up -d
           EOF
