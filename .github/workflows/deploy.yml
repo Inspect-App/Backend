@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,45 +6,73 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: SSH into EC2 and deploy
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          NODE_ENV: ${{ secrets.NODE_ENV }}
-          NESTJS_PORT: ${{ secrets.NESTJS_PORT }}
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_DNS }} << 'EOF'
-            if [ ! -d /home/ubuntu/backend ]; then
-              mkdir -p /home/ubuntu/backend
-              cd /home/ubuntu/backend
-              git clone https://github.com/JeanPaulBassil/XOXO-Event-Planner-Backend.git .
-            else
-              cd /home/ubuntu/backend
-              git pull origin main
-            fi
-            export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            export POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-            export NODE_ENV=${{ secrets.NODE_ENV }}
-            export NESTJS_PORT=${{ secrets.NESTJS_PORT }}
-            echo "POSTGRES_USER=${POSTGRES_USER}" > .env
-            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
-            echo "POSTGRES_DB=${POSTGRES_DB}" >> .env
-            echo "POSTGRES_PORT=${POSTGRES_PORT}" >> .env
-            echo "NODE_ENV=${NODE_ENV}" >> .env
-            echo "NESTJS_PORT=${NESTJS_PORT}" >> .env
-            sudo docker-compose down
-            sudo docker-compose up --build -d
-          EOF
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '21.7.3'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build application
+        run: pnpm run build
+
+      # - name: Log in to Docker Hub
+      #   run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      # - name: Build Docker image
+      #   run: docker build -f Dockerfile.production -t jeanpaulbassil/xoxo-backend:latest .
+
+      # - name: Push Docker image
+      #   run: docker push jeanpaulbassil/xoxo-backend:latest
+
+      # - name: Create .ssh directory
+      #   run: mkdir -p /home/runner/.ssh
+
+      # - name: Create SSH key file
+      #   run: echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/id_rsa
+
+      # - name: Set SSH key permissions
+      #   run: chmod 600 /home/runner/.ssh/id_rsa
+
+      # - name: Copy Docker Compose production file to server
+      #   run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.production.yaml ubuntu@${{ secrets.SERVEER_PUBLIC_DNS }}:/home/ubuntu/docker-compose.yaml
+
+      # - name: Copy init-db.sh to server
+      #   run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+
+      # - name: Copy nginx configuration files to server
+      #   run: |
+      #     scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r nginx.conf ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+      #     scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r certs ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+
+      # - name: SSH into server and create environment file
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa ubuntu@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
+      #       echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" > /home/ubuntu/.env
+      #       echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> /home/ubuntu/.env
+      #       echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> /home/ubuntu/.env
+      #       echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> /home/ubuntu/.env
+      #       echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> /home/ubuntu/.env
+      #       echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> /home/ubuntu/.env
+      #       echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/ubuntu/.env
+      #     EOF
+
+      # - name: SSH into server and deploy
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa ubuntu@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
+      #       sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      #       cd /home/ubuntu
+      #       sudo docker compose pull
+      #       sudo docker compose up -d
+      #     EOF

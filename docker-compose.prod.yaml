@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    ports:
+      - ${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}
+      - ${MINIO_API_PORT}:${MINIO_API_PORT}
+    environment:
+      MINIO_ROOT_USER: ${STACKHERO_MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STACKHERO_MINIO_SECRET_KEY}
+    command: minio server --console-address ":${MINIO_CONSOLE_PORT}" /data
+    volumes:
+      - miniodata:/data
+    networks:
+      - inspectnetwork
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:${MINIO_API_PORT}']
+      interval: 30s
+      timeout: 30s
+      retries: 10
+
+  db:
+    container_name: ins-pg
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - inspectnetwork
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - inspectnetwork
+
+  nestjs:
+    build:
+      context: .
+      dockerfile: ./docker/${NODE_ENV}.Dockerfile
+    env_file:
+      - .env
+    networks:
+      - inspectnetwork
+    expose:
+      - '${NESTJS_PORT}'
+    ports:
+      - '${NESTJS_PORT}:${NESTJS_PORT}'
+      - 5555:5555
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./prisma:/usr/src/app/prisma
+
+  maildev:
+    image: maildev/maildev
+    restart: unless-stopped
+    ports:
+      - 1080:1080
+      - ${MAIL_PORT}:${MAIL_PORT}
+    networks:
+      - inspectnetwork
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:1080']
+      interval: 30s
+      timeout: 30s
+      retries: 10
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    networks:
+      - inspectnetwork
+    ports:
+      - "80:80"
+    depends_on:
+      - nestjs
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    
+volumes:
+  pgdata:
+  miniodata:
+
+networks:
+  inspectnetwork:
