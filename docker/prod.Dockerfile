@@ -28,4 +28,4 @@ RUN pnpm run build
 EXPOSE $NESTJS_PORT
 
 # Command to run the application in production mode
-CMD ["sh", "-c", "pnpm run start:prod && pnpm run prisma:migrate:prod && pnpm run prisma:push"]
+CMD ["sh", "-c", "pnpm run prisma:migrate:prod && pnpm run prisma:push && pnpm run start:prod"]
