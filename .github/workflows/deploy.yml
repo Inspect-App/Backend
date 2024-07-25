@@ -46,18 +46,18 @@ jobs:
         run: chmod 600 /home/runner/.ssh/id_rsa
 
       - name: Copy Docker Compose production file to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu/docker-compose.yaml
+        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu/docker-compose.yaml
 
       - name: Copy init-db.sh to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
 
       - name: Copy nginx configuration files to server
         run: |
-          scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r nginx.conf ubuntu@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+          scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r nginx.conf root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
 
       - name: SSH into server and create environment file
         run: |
-          ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa ubuntu@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" > /home/ubuntu/.env
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> /home/ubuntu/.env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> /home/ubuntu/.env
@@ -85,7 +85,7 @@ jobs:
 
       - name: SSH into server and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa ubuntu@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu
             sudo docker compose pull
