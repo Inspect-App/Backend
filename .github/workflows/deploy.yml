@@ -49,7 +49,7 @@ jobs:
         run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
 
       - name: Copy init-db.sh to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts root@${{ secrets.SERVER_PUBLIC_DNS }}
+        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r init_db.sh root@${{ secrets.SERVER_PUBLIC_DNS }}
 
       - name: Copy nginx configuration files to server
         run: |
