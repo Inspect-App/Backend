@@ -48,9 +48,7 @@ services:
       - inspectnetwork
 
   nestjs:
-    build:
-      context: .
-      dockerfile: ./docker/${NODE_ENV}.Dockerfile
+    image: jeanpaulbassil/inspect-backend:latest
     env_file:
       - .env
     networks:
