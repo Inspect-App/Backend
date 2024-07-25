@@ -81,6 +81,8 @@ jobs:
             echo "STACKHERO_MINIO_ACCESS_KEY=${{ secrets.STACKHERO_MINIO_ACCESS_KEY }}" >> .env
             echo "STACKHERO_MINIO_SECRET_KEY=${{ secrets.STACKHERO_MINIO_SECRET_KEY }}" >> .env
             echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env
+            echo "NODE_ENV=prod" >> .env
+            echo "NESTJS_PORT=${{ secrets.NESTJS_PORT }}" >> .env
           EOF
 
       - name: SSH into server and deploy
