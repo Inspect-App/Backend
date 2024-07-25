@@ -27,14 +27,14 @@ jobs:
       - name: Build application
         run: pnpm run build
 
-      # - name: Log in to Docker Hub
-      #   run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      # - name: Build Docker image
-      #   run: docker build -f Dockerfile.production -t jeanpaulbassil/xoxo-backend:latest .
+      - name: Build Docker image
+        run: docker build -f docker/prod.Dockerfile -t jeanpaulbassil/inspect-backend:latest .
 
-      # - name: Push Docker image
-      #   run: docker push jeanpaulbassil/xoxo-backend:latest
+      - name: Push Docker image
+        run: docker push jeanpaulbassil/inspect-backend:latest
 
       # - name: Create .ssh directory
       #   run: mkdir -p /home/runner/.ssh
