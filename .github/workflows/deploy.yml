@@ -46,41 +46,41 @@ jobs:
         run: chmod 600 /home/runner/.ssh/id_rsa
 
       - name: Copy Docker Compose production file to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu/docker-compose.yaml
+        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
 
       - name: Copy init-db.sh to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r scripts root@${{ secrets.SERVER_PUBLIC_DNS }}
 
       - name: Copy nginx configuration files to server
         run: |
-          scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r nginx.conf root@${{ secrets.SERVER_PUBLIC_DNS }}:/home/ubuntu
+          scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa -r nginx.conf root@${{ secrets.SERVER_PUBLIC_DNS }}
 
       - name: SSH into server and create environment file
         run: |
           ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
-            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" > /home/ubuntu/.env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> /home/ubuntu/.env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> /home/ubuntu/.env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> /home/ubuntu/.env
-            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> /home/ubuntu/.env
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> /home/ubuntu/.env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/ubuntu/.env
-            echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> /home/ubuntu/.env
-            echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> /home/ubuntu/.env
-            echo "MAIL_IGNORE_TLS=${{ secrets.MAIL_IGNORE_TLS }}" >> /home/ubuntu/.env
-            echo "MAIL_SECURE=${{ secrets.MAIL_SECURE }}" >> /home/ubuntu/.env
-            echo "MAIL_SENDER_EMAIL=${{ secrets.MAIL_SENDER_EMAIL }}" >> /home/ubuntu/.env
-            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> /home/ubuntu/.env
-            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> /home/ubuntu/.env
-            echo "S3_PROVIDER=${{ secrets.S3_PROVIDER }}" >> /home/ubuntu/.env
-            echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> /home/ubuntu/.env
-            echo "STACKHERO_MINIO_HOST=${{ secrets.STACKHERO_MINIO_HOST }}" >> /home/ubuntu/.env
-            echo "MINIO_CONSOLE_PORT=${{ secrets.MINIO_CONSOLE_PORT }}" >> /home/ubuntu/.env
-            echo "MINIO_PORT=${{ secrets.MINIO_PORT }}" >> /home/ubuntu/.env
-            echo "MINIO_API_PORT=${{ secrets.MINIO_API_PORT }}" >> /home/ubuntu/.env
-            echo "STACKHERO_MINIO_ACCESS_KEY=${{ secrets.STACKHERO_MINIO_ACCESS_KEY }}" >> /home/ubuntu/.env
-            echo "STACKHERO_MINIO_SECRET_KEY=${{ secrets.STACKHERO_MINIO_SECRET_KEY }}" >> /home/ubuntu/.env
-            echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> /home/ubuntu/.env
+            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" > .env
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
+            echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
+            echo "MAIL_IGNORE_TLS=${{ secrets.MAIL_IGNORE_TLS }}" >> .env
+            echo "MAIL_SECURE=${{ secrets.MAIL_SECURE }}" >> .env
+            echo "MAIL_SENDER_EMAIL=${{ secrets.MAIL_SENDER_EMAIL }}" >> .env
+            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+            echo "S3_PROVIDER=${{ secrets.S3_PROVIDER }}" >> .env
+            echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> .env
+            echo "STACKHERO_MINIO_HOST=${{ secrets.STACKHERO_MINIO_HOST }}" >> .env
+            echo "MINIO_CONSOLE_PORT=${{ secrets.MINIO_CONSOLE_PORT }}" >> .env
+            echo "MINIO_PORT=${{ secrets.MINIO_PORT }}" >> .env
+            echo "MINIO_API_PORT=${{ secrets.MINIO_API_PORT }}" >> .env
+            echo "STACKHERO_MINIO_ACCESS_KEY=${{ secrets.STACKHERO_MINIO_ACCESS_KEY }}" >> .env
+            echo "STACKHERO_MINIO_SECRET_KEY=${{ secrets.STACKHERO_MINIO_SECRET_KEY }}" >> .env
+            echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env
           EOF
 
       - name: SSH into server and deploy
