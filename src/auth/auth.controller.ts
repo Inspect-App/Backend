@@ -67,8 +67,8 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User registered successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async register(@Body() registerDto: RegisterDto) {
-    await this.authService.register(registerDto);
-    return { message: 'Verification code sent to email' };
+    return await this.authService.register(registerDto);
+    
   }
 
   @Post('verify')

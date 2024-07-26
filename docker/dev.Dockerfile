@@ -21,6 +21,8 @@ RUN pnpm add prisma
 # Copy remaining application files
 COPY . .
 
+COPY init_db.sh /docker-entrypoint-initdb.d/
+
 # Expose the NestJS port specified in the environment variable
 EXPOSE $NESTJS_PORT
 

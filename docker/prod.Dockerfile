@@ -18,6 +18,8 @@ RUN pnpm add prisma --save-dev
 # Copy remaining application files
 COPY . .
 
+COPY init_db.sh /docker-entrypoint-initdb.d/
+
 # Ensure the prisma directory and its contents are copied
 COPY prisma/ ./prisma/
 

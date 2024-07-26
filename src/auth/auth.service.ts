@@ -100,7 +100,12 @@ export class AuthService {
     return result;
   }
 
-  async register(registerDto: RegisterDto): Promise<void> {
+  async register(registerDto: RegisterDto): Promise<{
+    accessToken: string;
+    refreshToken: string
+    message: string;
+    user: User
+  }> {
     const { email, password, firstName, lastName } = registerDto;
     const existingUser = (await this.prisma.user.findUnique({
       where: { email },
@@ -115,7 +120,7 @@ export class AuthService {
     ).toString();
 
     try {
-      await this.prisma.user.create({
+     const user =  await this.prisma.user.create({
         data: {
           email,
           password: hashedPassword,
@@ -125,8 +130,14 @@ export class AuthService {
           isVerified: false,
         },
       });
+      const payload: JwtPayload = { email: user.email, id: user.id };
+      const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+      const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
       this.mailerService.sendVerificationEmail(email, verificationCode);
+      return { accessToken, refreshToken, user, 
+        message: 'Verification Code sent To Email',
+       };
     } catch (error) {
       await this.prisma.user.delete({ where: { email } });
       throw new BadRequestException('Failed to register user');
