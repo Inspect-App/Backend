@@ -20,7 +20,7 @@ RUN pnpm run build
 # Stage 2: Production image
 FROM node:21.7.3-slim
 
-RUN npm install -g pnpm && apt-get update -y && apt-get install -y openssl python3 python3-pandas
+RUN npm install -g pnpm
 
 WORKDIR /usr/src/app
 
