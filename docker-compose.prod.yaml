@@ -62,8 +62,8 @@ services:
     depends_on:
       - db
       - minio
-      - maildev      
-      
+      - maildev
+
     volumes:
       - ./src:/usr/src/app/src
       - ./prisma:/usr/src/app/prisma
@@ -82,24 +82,24 @@ services:
       timeout: 30s
       retries: 10
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    restart: unless-stopped
-    networks:
-      - inspectnetwork
-    ports:
-      - "80:80"
-    depends_on:
-      - nestjs
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: nginx
+  #   restart: unless-stopped
+  #   networks:
+  #     - inspectnetwork
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - nestjs
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
 volumes:
   pgdata:
   miniodata:
