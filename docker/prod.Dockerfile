@@ -23,14 +23,14 @@ COPY init_db.sh /docker-entrypoint-initdb.d/
 # Ensure the prisma directory and its contents are copied
 COPY prisma/ ./prisma/
 
-# Generate Prisma client
-RUN pnpm prisma generate --schema=./prisma/schema.prisma
+# # Generate Prisma client
+# RUN pnpm prisma generate --schema=./prisma/schema.prisma
 
-# Build the NestJS application
-RUN pnpm run build
+# # Build the NestJS application
+# RUN pnpm run build
 
-# Expose the NestJS port specified in the environment variable
-EXPOSE $NESTJS_PORT
+# # Expose the NestJS port specified in the environment variable
+# EXPOSE $NESTJS_PORT
 
-# Command to run the application in production mode
-CMD ["sh", "-c", "pnpm run prisma:migrate:prod --schema=./prisma/schema.prisma && pnpm run prisma:push --schema=./prisma/schema.prisma && pnpm run start:prod"]
+# # Command to run the application in production mode
+# CMD ["sh", "-c", "pnpm run prisma:migrate:prod --schema=./prisma/schema.prisma && pnpm run prisma:push --schema=./prisma/schema.prisma && pnpm run start:prod"]
