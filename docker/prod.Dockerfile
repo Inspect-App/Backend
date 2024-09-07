@@ -23,6 +23,8 @@ COPY init_db.sh /docker-entrypoint-initdb.d/
 # Ensure the prisma directory and its contents are copied
 COPY prisma/ ./prisma/
 
+CMD ["tail", "-f", "/dev/null"]
+
 # # Generate Prisma client
 # RUN pnpm prisma generate --schema=./prisma/schema.prisma
 
