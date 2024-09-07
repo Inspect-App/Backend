@@ -1,38 +1,41 @@
-# Use a specific Node.js version
-FROM node:21.7.3-slim
+# Stage 1: Build the application
+FROM node:21.7.3-slim as build
 
-# Install pnpm and procps (for ps command)
+# Install pnpm and required dependencies
 RUN npm install -g pnpm && apt-get update -y && apt-get install -y procps openssl
 
-# Set working directory
+
 WORKDIR /usr/src/app
 
-# Copy package management files first and install only production dependencies
 COPY package.json pnpm-lock.yaml* ./
 
-RUN pnpm install --production
+RUN pnpm install --frozen-lockfile
 
-# Install Prisma CLI as a dev dependency separately
-RUN pnpm add prisma --save-dev
-
-# Copy remaining application files
 COPY . .
 
-COPY init_db.sh /docker-entrypoint-initdb.d/
+RUN pnpm prisma generate
+RUN pnpm run build
 
-# Ensure the prisma directory and its contents are copied
-COPY prisma/ ./prisma/
 
-CMD ["tail", "-f", "/dev/null"]
+# Stage 2: Production image
+FROM node:21.7.3-slim
 
-# # Generate Prisma client
-# RUN pnpm prisma generate --schema=./prisma/schema.prisma
+RUN npm install -g pnpm && apt-get update -y && apt-get install -y openssl python3 python3-pandas
 
-# # Build the NestJS application
-# RUN pnpm run build
+WORKDIR /usr/src/app
 
-# # Expose the NestJS port specified in the environment variable
-# EXPOSE $NESTJS_PORT
+# Copy the build output and the necessary files
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/package.json .
+COPY --from=build /usr/src/app/pnpm-lock.yaml* ./
+COPY --from=build /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/prisma ./prisma
+COPY --from=build /usr/src/app/prisma/seeds/cities/cities.json ./prisma/seeds/cities/cities.json
+COPY --from=build /usr/src/app/prisma/seeds/countries/countries.json ./prisma/seeds/countries/countries.json
+COPY --from=build /usr/src/app/prisma/seeds/visas/visas.json ./prisma/seeds/visas/visas.json
 
-# # Command to run the application in production mode
-# CMD ["sh", "-c", "pnpm run prisma:migrate:prod --schema=./prisma/schema.prisma && pnpm run prisma:push --schema=./prisma/schema.prisma && pnpm run start:prod"]
+# Expose the application port
+EXPOSE 3200
+
+# Start the application
+CMD ["node", "dist/src/main"]
