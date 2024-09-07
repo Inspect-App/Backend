@@ -20,7 +20,7 @@ RUN pnpm run build
 # Stage 2: Production image
 FROM node:21.7.3-slim
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm  && apt-get update -y && apt-get install -y procps openssl
 
 WORKDIR /usr/src/app
 
