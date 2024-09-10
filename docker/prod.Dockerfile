@@ -14,8 +14,9 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 RUN pnpm prisma generate
-RUN pnpm run build
 RUN pnpm prisma migrate deploy
+RUN pnpm run build
+
 
 # Stage 2: Production image
 FROM node:21.7.3-slim
