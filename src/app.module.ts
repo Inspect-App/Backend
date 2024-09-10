@@ -20,7 +20,7 @@ import { FileUploadModule } from './files/file-upload.module';
       isGlobal: true,
     }),
     AuthModule,
-    MinioClientModule,
+    // MinioClientModule,
     FileUploadModule,
   ],
   controllers: [AppController],

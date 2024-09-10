@@ -31,6 +31,9 @@ COPY --from=build /usr/src/app/pnpm-lock.yaml* ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/prisma ./prisma
 
+# Apply migrations
+RUN pnpm prisma migrate deploy
+
 # Expose the application port
 EXPOSE 3200
 
