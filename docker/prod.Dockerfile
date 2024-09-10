@@ -15,7 +15,7 @@ COPY . .
 
 RUN pnpm prisma generate
 RUN pnpm run build
-
+RUN pnpm prisma migrate deploy
 
 # Stage 2: Production image
 FROM node:21.7.3-slim
@@ -31,8 +31,7 @@ COPY --from=build /usr/src/app/pnpm-lock.yaml* ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/prisma ./prisma
 
-# Apply migrations
-RUN pnpm prisma migrate deploy
+
 
 # Expose the application port
 EXPOSE 3200
