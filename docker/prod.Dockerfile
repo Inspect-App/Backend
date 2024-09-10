@@ -30,13 +30,11 @@ COPY --from=build /usr/src/app/package.json .
 COPY --from=build /usr/src/app/pnpm-lock.yaml* ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/prisma ./prisma
-COPY --from=build /usr/src/app/.env ./.env
 
-# Apply migrations
-RUN pnpm prisma migrate deploy
+
 
 # Expose the application port
 EXPOSE 3200
 
 # Start the application
-CMD ["node", "dist/src/main"]
+CMD [  "npm", "run", "start:prod" ]
