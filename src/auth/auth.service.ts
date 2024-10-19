@@ -106,7 +106,7 @@ export class AuthService {
     message: string;
     user: User
   }> {
-    const { email, password, firstName, lastName } = registerDto;
+    const { email, password } = registerDto;
     const existingUser = (await this.prisma.user.findUnique({
       where: { email },
     })) as User;
@@ -124,8 +124,6 @@ export class AuthService {
         data: {
           email,
           password: hashedPassword,
-          firstName,
-          lastName,
           verificationCode,
           isVerified: false,
         },

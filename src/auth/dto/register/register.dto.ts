@@ -9,13 +9,5 @@ export class RegisterDto {
   @ApiProperty({ example: 'password123', type: String })
   @IsStrongPassword()
   password: string;
-
-  @ApiProperty({ example: 'John', type: String })
-  @IsString()
-  firstName: string;
-
-  @ApiProperty({ example: 'Doe', type: String })
-  @IsString()
-  lastName: string;
 }
 
