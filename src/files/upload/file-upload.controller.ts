@@ -1,5 +1,5 @@
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { BufferedVideoFile } from '../minio/file.model';
+import { BufferedVideoFile } from '../../minio/file.model';
 import {
   Controller,
   HttpException,

@@ -14,7 +14,21 @@ model User {
   verificationCode String?
   isVerified       Boolean  @default(false)
   refreshToken     String?
-  minutes          Float   @default(8.0)
+  minutes          Float   @default(5.0)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model File {
+  id       Int    @id @default(autoincrement())
+  title    String
+  path     String
+  duration Int
+  status   Status @default(pending)
+}
+
+enum Status {
+  pending
+  saved
+  deleted
 }

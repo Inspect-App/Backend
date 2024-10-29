@@ -11,8 +11,9 @@ import { MailerService } from './mailer/mailer.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { MinioClientModule } from './minio/minio-client.module';
-import { FileUploadModule } from './files/file-upload.module';
+import { FileUploadModule } from './files/upload/file-upload.module';
 import { UsersModule } from './users/users.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     MinioClientModule,
     FileUploadModule,
     UsersModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [
