@@ -12,6 +12,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { MinioClientModule } from './minio/minio-client.module';
 import { FileUploadModule } from './files/file-upload.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FileUploadModule } from './files/file-upload.module';
     AuthModule,
     MinioClientModule,
     FileUploadModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
