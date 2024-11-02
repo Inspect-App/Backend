@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Put, UseGuards } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { Status } from '@prisma/client';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('files')
 export class FilesController {
     constructor(private filesService: FilesService) {}
