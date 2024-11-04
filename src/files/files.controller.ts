@@ -9,9 +9,9 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 export class FilesController {
     constructor(private filesService: FilesService) {}
 
-    @Get('/:status')
-    async getByStatus(@Param('status') status: Status) {
-        return this.filesService.getByStatus(status);
+    @Get('/:id/:status')
+    async getByStatus(@Param('status') status: Status, @Param('id', ParseIntPipe) id: number) {
+        return this.filesService.getByStatus(status, id);
     }
 
     @Put('/:id')
@@ -24,8 +24,8 @@ export class FilesController {
         return this.filesService.deleteFile(id);
     }
 
-    @Delete()
-    async deleteAll() {
-        return this.filesService.deleteAll();
+    @Delete('/all/:id')
+    async deleteAll(@Param('id', ParseIntPipe) id: number) {
+        return this.filesService.deleteAll(id);
     }
 }

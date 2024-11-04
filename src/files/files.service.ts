@@ -8,8 +8,8 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 export class FilesService {
     constructor(private prismaService: PrismaService) {}
 
-    async getByStatus(status: Status): Promise<FileDto[]> {
-        return this.prismaService.file.findMany({where: {status: status}});
+    async getByStatus(status: Status, id: number): Promise<FileDto[]> {
+        return this.prismaService.file.findMany({where: {status: status, userId: id}});
     }
 
     async updateFileStatus(id: number, statusDto: UpdateStatusDto) {
@@ -27,7 +27,7 @@ export class FilesService {
         return this.prismaService.file.delete({where: {id}});
     }
 
-    async deleteAll() {
-        return this.prismaService.file.deleteMany({where: {status: Status.deleted}})
+    async deleteAll(id: number) {
+        return this.prismaService.file.deleteMany({where: {status: Status.deleted, userId: id}})
     }
 }
