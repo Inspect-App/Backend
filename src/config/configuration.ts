@@ -11,11 +11,13 @@ export default () => ({
   email: {
     host: process.env.MAIL_HOST,
     port: parseInt(process.env.MAIL_PORT, 10),
-    ignoreTLS: process.env.MAIL_IGNORE_TLS === 'true',
     secure: process.env.MAIL_SECURE === 'true',
     senderEmail: process.env.MAIL_SENDER_EMAIL,
     username: process.env.MAIL_USERNAME,
     password: process.env.MAIL_PASSWORD,
+    tls: process.env.MAIL_TLS,
+    required: process.env.MAIL_REQUIRE_TLS === 'true',
+    timeout: parseInt(process.env.MAIL_SOCKET_TIMEOUT, 10)
   },
   jwtSecret: process.env.JWT_SECRET,
 });
