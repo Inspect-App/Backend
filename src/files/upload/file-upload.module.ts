@@ -1,11 +1,10 @@
 import { FileUploadController } from "./file-upload.controller";
-import { FileUploadService } from "./file-upload.service";
-import { MinioClientModule } from "../../minio/minio-client.module";
 import { Module } from "@nestjs/common";
+import { AwsService } from "./aws.service";
+import { PrismaService } from "src/prisma.service";
 
 @Module({
-  imports: [MinioClientModule],
-  providers: [FileUploadService],
+  providers: [AwsService, PrismaService],
   controllers: [FileUploadController],
 })
 export class FileUploadModule {}
