@@ -14,7 +14,10 @@ import { MinioClientModule } from './minio/minio-client.module';
 import { FileUploadModule } from './files/upload/file-upload.module';
 import { UsersModule } from './users/users.module';
 import { FilesModule } from './files/files.module';
-
+import { PurchaseService } from './purchase/purchase.service';
+import { PurchaseController } from './purchase/purchase.controller';
+import { PurchaseModule } from './purchase/purchase.module';
+import { AwsService } from './files/upload/aws.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,6 +29,7 @@ import { FilesModule } from './files/files.module';
     FileUploadModule,
     UsersModule,
     FilesModule,
+    PurchaseModule,
   ],
   controllers: [AppController],
   providers: [
