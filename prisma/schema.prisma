@@ -8,12 +8,39 @@ generator client {
 }
 
 model User {
-  id               Int      @id @default(autoincrement())
-  email            String   @unique
-  password         String
-  verificationCode String?
-  isVerified       Boolean  @default(false)
-  refreshToken     String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 Int                @id @default(autoincrement())
+  email              String             @unique
+  password           String
+  verificationCode   String?
+  isVerified         Boolean            @default(false)
+  refreshToken       String?
+  minutes            Float              @default(5.0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  files              File[]
+  subscriptionType   SubscriptionType?
+  subscriptionExpiry DateTime?
+  isPremium          Boolean            @default(false)
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  title     String
+  path      String
+  duration  Int
+  status    Status    @default(pending)
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  deletedAt DateTime  @updatedAt
+}
+
+enum Status {
+  pending
+  saved
+  deleted
+}
+
+enum SubscriptionType {
+  monthly
+  one_time
 }

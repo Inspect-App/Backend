@@ -10,12 +10,17 @@ export class MailerService {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('email.host'),
       port: this.configService.get<number>('email.port'),
-      ignoreTLS: this.configService.get<boolean>('email.ignoreTLS'),
+      // ignoreTLS: this.configService.get<boolean>('email.ignoreTLS'),
       secure: this.configService.get<boolean>('email.secure'),
       auth: {
         user: this.configService.get<string>('email.username'),
         pass: this.configService.get<string>('email.password'),
       },
+      tls: {
+        ciphers: this.configService.get<string>('email.tls'),
+      },
+      requireTLS: this.configService.get<boolean>('email.required'),
+      socketTimeout: this.configService.get<number>('email.timeout'),
     });
   }
 
