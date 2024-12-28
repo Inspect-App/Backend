@@ -1,19 +1,19 @@
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { BufferedVideoFile } from '../minio/file.model';
 import {
+  Body,
   Controller,
-  HttpException,
+  Logger,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadService } from './file-upload.service';
 import { Throttle } from '@nestjs/throttler';
+import { AwsService } from 'src/files/upload/aws.service';
 
 @Controller('file-upload')
 export class FileUploadController {
-  constructor(private fileUploadService: FileUploadService) {}
+  constructor(private readonly awsService: AwsService) {}
 
   @Post('single')
   @Throttle({
@@ -35,8 +35,14 @@ export class FileUploadController {
     },
   })
   @UseInterceptors(FileInterceptor('video'))
-  async uploadSingle(@UploadedFile() video: BufferedVideoFile) {
-    if (!video) throw new HttpException('Video is required', 400);
-    return await this.fileUploadService.uploadSingle(video);
+  async uploadSingle(@UploadedFile() video: Express.Multer.File, @Body('id') id: number) {
+    Logger.log('Received file:', video.originalname);
+  if (!video) {
+    console.error('No file uploaded');
+    throw new Error('No file uploaded');
+  }
+    const bucket = process.env.AWS_S3_BUCKET_NAME;
+    const result = await this.awsService.uploadFile(video, bucket, id);
+    return { url: result.Location };
   }
 }

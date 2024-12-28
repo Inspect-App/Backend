@@ -1,6 +1,6 @@
-import { BufferedVideoFile } from "../minio/file.model";
+import { BufferedVideoFile } from "../../minio/file.model";
 import { Injectable } from "@nestjs/common";
-import { MinioClientService } from "../minio/minio-client.service";
+import { MinioClientService } from "../../minio/minio-client.service";
 
 @Injectable()
 export class FileUploadService {
