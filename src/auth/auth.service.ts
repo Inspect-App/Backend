@@ -106,7 +106,7 @@ export class AuthService {
     message: string;
     user: User
   }> {
-    const { email, password, firstName, lastName } = registerDto;
+    const { email, password } = registerDto;
     const existingUser = (await this.prisma.user.findUnique({
       where: { email },
     })) as User;
@@ -124,8 +124,6 @@ export class AuthService {
         data: {
           email,
           password: hashedPassword,
-          firstName,
-          lastName,
           verificationCode,
           isVerified: false,
         },
@@ -148,7 +146,7 @@ export class AuthService {
     { accessToken: string; refreshToken: string }
   > {
     const { email, verificationCode } = verifyDto;
-    const user = (await this.prisma.user.findUnique({
+    let user = (await this.prisma.user.findUnique({
       where: { email },
     })) as User;
 
@@ -156,10 +154,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid verification code');
     }
 
-    await this.prisma.user.update({
+    user = await this.prisma.user.update({
       where: { email },
       data: { verificationCode: null, isVerified: true },
-    });
+    }) as User;
     const { password, ...result } = user;
     return this.getTokensAndUserFromUser(result);
   }
