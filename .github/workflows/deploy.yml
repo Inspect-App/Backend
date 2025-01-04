@@ -46,7 +46,7 @@ jobs:
         run: chmod 600 /home/runner/.ssh/id_rsa
 
       - name: Copy Docker Compose production file to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
+        run: scp -v -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
 
       - name: Copy init-db.sh to server
         run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa init_db.sh root@${{ secrets.SERVER_PUBLIC_DNS }}:init_db.sh
