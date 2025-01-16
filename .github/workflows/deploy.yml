@@ -28,7 +28,7 @@ jobs:
         run: pnpm run build
 
       - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker image
         run: docker build -f docker/prod.Dockerfile -t jeanpaulbassil/inspect-backend:latest .
@@ -36,28 +36,39 @@ jobs:
       - name: Push Docker image
         run: docker push jeanpaulbassil/inspect-backend:latest
 
-      - name: Create .ssh directory
-        run: mkdir -p /home/runner/.ssh
+      - name: Validate SSH Key
+        run: |
+          echo "Validating SSH key..."
+          echo "${{ secrets.SERVER_SSH_KEY }}" > /home/runner/.ssh/id_rsa
+          chmod 600 /home/runner/.ssh/id_rsa
+          cat /home/runner/.ssh/id_rsa || (echo "SSH key is invalid or not set" && exit 1)
 
-      - name: Create SSH key file
-        run: echo "${{ secrets.SERVER_SSH_KEY }}" > /home/runner/.ssh/id_rsa
-
-      - name: Set SSH key permissions
-        run: chmod 600 /home/runner/.ssh/id_rsa
+      - name: Verify Server Connectivity
+        run: |
+          echo "Testing SSH connection..."
+          ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} "echo 'SSH connection successful'" || exit 1
 
       - name: Copy Docker Compose production file to server
-        run: scp -v -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
+        run: |
+          echo "Copying Docker Compose file to server..."
+          scp -v -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa docker-compose.prod.yaml root@${{ secrets.SERVER_PUBLIC_DNS }}:docker-compose.yaml
 
       - name: Copy init-db.sh to server
-        run: scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa init_db.sh root@${{ secrets.SERVER_PUBLIC_DNS }}:init_db.sh
+        run: |
+          echo "Copying init-db.sh to server..."
+          scp -v -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa init_db.sh root@${{ secrets.SERVER_PUBLIC_DNS }}:init_db.sh
 
       - name: Copy nginx configuration files to server
         run: |
-          scp -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa nginx.conf root@${{ secrets.SERVER_PUBLIC_DNS }}:nginx.conf
+          echo "Copying NGINX configuration to server..."
+          scp -v -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa nginx.conf root@${{ secrets.SERVER_PUBLIC_DNS }}:nginx.conf
 
-      - name: SSH into server and create environment file
+      - name: Create environment file on server
         run: |
+          echo "Creating environment file on server..."
           ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
+            set -e
+            echo "Creating .env file..."
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" > .env
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
@@ -85,10 +96,15 @@ jobs:
             echo "NESTJS_PORT=${{ secrets.NESTJS_PORT }}" >> .env
           EOF
 
-      - name: SSH into server and deploy
+      - name: Deploy application on server
         run: |
+          echo "Deploying application..."
           ssh -o StrictHostKeyChecking=no -i /home/runner/.ssh/id_rsa root@${{ secrets.SERVER_PUBLIC_DNS }} << 'EOF'
-            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            set -e
+            echo "Logging into Docker..."
+            sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+            echo "Pulling latest images..."
             sudo docker compose pull
+            echo "Starting services..."
             sudo docker compose --verbose up -d
           EOF
