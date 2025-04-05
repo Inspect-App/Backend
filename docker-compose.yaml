@@ -51,6 +51,7 @@ services:
       - inspectnetwork
 
   nestjs:
+    container_name: nestjs
     build:
       context: .
       dockerfile: ./docker/${NODE_ENV}.Dockerfile

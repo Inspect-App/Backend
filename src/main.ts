@@ -36,6 +36,6 @@ async function bootstrap() {
   Logger.log(`---------------------------------------`, 'Bootstrap');
   Logger.log(`---------------------------------------`, 'Bootstrap');
 
-  await app.listen(3200);
+  await app.listen(3200, '0.0.0.0');
 }
 bootstrap();

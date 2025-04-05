@@ -68,7 +68,6 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async register(@Body() registerDto: RegisterDto) {
     return await this.authService.register(registerDto);
-    
   }
 
   @Post('verify')
@@ -77,6 +76,5 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async verify(@Body() verifyDto: VerifyDto) {
     return await this.authService.verify(verifyDto);
-  
   }
 }

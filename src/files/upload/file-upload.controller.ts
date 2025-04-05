@@ -6,6 +6,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Request,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
@@ -31,18 +32,27 @@ export class FileUploadController {
           type: 'string',
           format: 'binary',
         },
+        id: {
+          type: 'number',
+          description: 'User ID',
+        },
       },
     },
   })
   @UseInterceptors(FileInterceptor('video'))
-  async uploadSingle(@UploadedFile() video: Express.Multer.File, @Body('id') id: number) {
-    Logger.log('Received file:', video.originalname);
-  if (!video) {
-    console.error('No file uploaded');
-    throw new Error('No file uploaded');
-  }
-    const bucket = process.env.AWS_S3_BUCKET_NAME;
-    const result = await this.awsService.uploadFile(video, bucket, id);
+  async uploadSingle(@UploadedFile() video: Express.Multer.File, @Body('id') id: string) {
+    if (!video) {
+      console.error('No file uploaded');
+      throw new Error('No file uploaded');
+    }
+    
+    Logger.log(`Received file: ${video.originalname} for user ID: ${id || 'unknown'}`);
+    
+    // Convert id to number or use null if not provided
+    const userId = id ? parseInt(id, 10) : null;
+    
+    // Pass the user ID to the upload service
+    const result = await this.awsService.uploadFile(video, null, userId);
     return { url: result.Location };
   }
 }
